@@ -6,6 +6,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Lessons CRUD</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media'
+    }
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
@@ -27,13 +32,13 @@
   </style>
 </head>
 
-<body class="bg-gradient-to-b from-indigo-50 to-cyan-50">
+<body class="bg-gradient-to-b from-indigo-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
 
   <div id="app" class="min-h-screen flex flex-col">
 
-    <header class="bg-white shadow p-4 flex justify-between items-center">
+    <header class="bg-white dark:bg-gray-800 shadow p-4 flex justify-between items-center">
       <div class="flex items-center gap-2">
-        <span class="material-symbols-outlined text-indigo-600 text-3xl">school</span>
+        <span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-3xl">school</span>
       </div>
       <nav class="flex gap-3">
         <button @click="view='list'" :class="navClass('list')" title="List Lessons">
@@ -45,8 +50,8 @@
         <button @click="view='detail'" :class="navClass('detail')" v-if="currentLesson" title="View Detail">
           <span class="material-symbols-outlined">visibility</span>
         </button>
-        <button @click="view='motivation'" :class="navClass('motivation')" title="Motivation">
-          <span class="material-symbols-outlined">psychology</span>
+        <button @click="view='prelearn'" :class="navClass('prelearn')" title="Pre-Learning">
+          <span class="material-symbols-outlined">priority_high</span>
         </button>
         <button @click="view='about'" :class="navClass('about')" title="About">
           <span class="material-symbols-outlined">info</span>
@@ -58,203 +63,135 @@
 
       <section v-if="view==='list'" class="max-w-5xl mx-auto">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold">All Lessons</h2>
-          <button @click="fetchLessons" class="p-2 rounded hover:bg-indigo-100">
-            <span class="material-symbols-outlined">refresh</span>
+          <h2 class="text-lg font-semibold dark:text-white">All Lessons</h2>
+          <button @click="fetchLessons" class="p-2 rounded hover:bg-indigo-100 dark:hover:bg-gray-700">
+            <span class="material-symbols-outlined dark:text-white">refresh</span>
           </button>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div v-for="l in lessons" :key="l.id" class="p-4 bg-white rounded-xl shadow">
+          <div v-for="l in lessons" :key="l.id" class="p-4 bg-white dark:bg-gray-800 rounded-xl shadow">
             <div class="flex justify-between items-start">
               <div>
-                <h3 class="font-bold">{{ l.title }}</h3>
-                <p class="text-xs text-gray-500">ID: {{ l.id }}</p>
+                <h3 class="font-bold dark:text-white">{{ l.title }}</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400">ID: {{ l.id }}</p>
               </div>
               <div class="flex gap-2">
-                <button @click="copyLesson(l)" class="p-1 rounded hover:bg-slate-100" title="Copy">
-                  <span class="material-symbols-outlined">content_copy</span>
+                <button @click="copyLesson(l)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-gray-700" title="Copy">
+                  <span class="material-symbols-outlined dark:text-white">content_copy</span>
                 </button>
-                <button @click="viewDetail(l)" class="p-1 rounded hover:bg-slate-100">
-                  <span class="material-symbols-outlined">visibility</span>
+                <button @click="viewDetail(l)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-gray-700">
+                  <span class="material-symbols-outlined dark:text-white">visibility</span>
                 </button>
-                <button @click="removeLesson(l.id)" class="p-1 rounded hover:bg-slate-100">
-                  <span class="material-symbols-outlined">delete</span>
+                <button @click="removeLesson(l.id)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-gray-700">
+                  <span class="material-symbols-outlined dark:text-white">delete</span>
                 </button>
               </div>
             </div>
           </div>
         </div>
-        <div v-if="!lessons.length" class="text-center text-gray-500 mt-10">No lessons yet.</div>
-        <div class="mt-6 flex justify-center">
-          <button @click="seedIfEmpty"
-            class="px-4 py-2 bg-indigo-600 text-white rounded hover:opacity-90 flex items-center gap-2"
-            title="Add Sample Data">
-            <span class="material-symbols-outlined">bolt</span>
-          </button>
-        </div>
+        <div v-if="!lessons.length" class="text-center text-gray-500 dark:text-gray-400 mt-10">No lessons yet.</div>
       </section>
 
-      <section v-if="view==='create'" class="max-w-lg mx-auto bg-white rounded-xl shadow p-2">
-        <h2 class="text-lg font-semibold mb-4">{{ editing ? 'Edit Lesson' : 'Create Lesson' }}</h2>
+      <section v-if="view==='create'" class="max-w-lg mx-auto bg-white dark:bg-gray-800 rounded-xl shadow p-2">
+        <h2 class="text-lg font-semibold mb-4 dark:text-white">{{ editing ? 'Edit Lesson' : 'Create Lesson' }}</h2>
         <form @submit.prevent="editing ? updateLesson() : createLesson()" class="space-y-4">
           <div>
-            <label class="block text-sm text-gray-600 mb-1">Title</label>
-            <input v-model="form.title" class="w-full border rounded px-3 py-2 text-sm" placeholder="Lesson title">
+            <label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Title</label>
+            <input v-model="form.title" class="w-full border dark:border-gray-600 rounded px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-white" placeholder="Lesson title">
           </div>
           <div>
-            <label class="block text-sm text-gray-600 mb-1">Content</label>
-            <textarea v-model="form.content" rows="6" class="w-full border rounded px-3 py-2 text-sm"
+            <label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Content</label>
+            <textarea v-model="form.content" rows="6" class="w-full border dark:border-gray-600 rounded px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-white"
               placeholder="Write content here"></textarea>
           </div>
           <div class="flex justify-end gap-2">
-            <button type="button" @click="cancel" class="px-4 py-2 rounded border">Cancel</button>
-            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:opacity-90">Save</button>
+            <button type="button" @click="cancel" class="px-4 py-2 rounded border dark:border-gray-600 dark:text-white dark:hover:bg-gray-700">Cancel</button>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 dark:bg-indigo-700 text-white rounded hover:opacity-90">Save</button>
           </div>
         </form>
       </section>
 
       <section v-if="view==='about'" class="max-w-2xl mx-auto text-center mt-10">
         <span class="material-symbols-outlined text-6xl text-indigo-400 mb-4">emoji_objects</span>
-        <h2 class="text-2xl font-bold mb-2">About This App</h2>
-        <p class="text-gray-600 leading-relaxed">
+        <h2 class="text-2xl font-bold mb-2 dark:text-white">About This App</h2>
+        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
           A minimal learning CRUD app built with Vue 3 (CDN), Tailwind CSS, and Supabase.<br>
           Manage Arabic and English lesson pairs easily — create, view, update, delete.
         </p>
       </section>
 
       <section v-if="view==='detail'" class="max-w-3xl mx-auto">
-        <div class="bg-white rounded-xl shadow p-2" v-if="currentLesson">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-2" v-if="currentLesson">
           <div class="flex justify-between items-start mb-6">
             <div>
-              <h2 class="text-2xl font-bold text-slate-800">{{ currentLesson.title }}</h2>
-              <p class="text-sm text-gray-500">Lesson ID: {{ currentLesson.id }}</p>
+              <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-200">{{ currentLesson.title }}</h2>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Lesson ID: {{ currentLesson.id }}</p>
             </div>
             <div class="flex gap-2">
-              <button @click="startEdit(currentLesson)" class="p-2 rounded hover:bg-slate-100">
-                <span class="material-symbols-outlined">edit</span>
+              <button @click="startEdit(currentLesson)" class="p-2 rounded hover:bg-slate-100 dark:hover:bg-gray-700">
+                <span class="material-symbols-outlined dark:text-white">edit</span>
               </button>
-              <button @click="view='fullscreen'" class="p-2 rounded hover:bg-slate-100" title="Fullscreen">
-                <span class="material-symbols-outlined">fullscreen</span>
+              <button @click="view='fullscreen'" class="p-2 rounded hover:bg-slate-100 dark:hover:bg-gray-700" title="Fullscreen">
+                <span class="material-symbols-outlined dark:text-white">fullscreen</span>
               </button>
-              <button @click="view='list'" class="p-2 rounded hover:bg-slate-100">
-                <span class="material-symbols-outlined">arrow_back</span>
+              <button @click="view='list'" class="p-2 rounded hover:bg-slate-100 dark:hover:bg-gray-700">
+                <span class="material-symbols-outlined dark:text-white">arrow_back</span>
               </button>
             </div>
           </div>
           <div class="prose max-w-none">
             <div v-for="(line, index) in contentLines" :key="index" class="mb-4">
-              <canvas v-if="(index + 1) % 2 === 0" :ref="'canvas-' + index" class="border rounded bg-gray-50 w-full"
+              <canvas v-if="(index + 1) % 2 === 0" :ref="'canvas-' + index" class="border dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 w-full"
                 style="height: 60px;">
               </canvas>
-              <div v-else class="text-gray-700 leading-relaxed text-3xl text-right" dir="rtl">{{ line }}</div>
+              <div v-else class="text-gray-700 dark:text-gray-300 leading-relaxed text-3xl text-right" dir="rtl">{{ line }}</div>
             </div>
           </div>
         </div>
-        <div v-else class="text-center text-gray-500 mt-10">No lesson selected.</div>
+        <div v-else class="text-center text-gray-500 dark:text-gray-400 mt-10">No lesson selected.</div>
       </section>
 
-      <section v-if="view==='motivation'" class="max-w-4xl mx-auto">
-        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl shadow-lg p-8 mb-6">
-          <div class="text-center mb-8">
-            <span class="material-symbols-outlined text-6xl text-amber-500 mb-4">local_fire_department</span>
-            <h2 class="text-3xl font-bold text-gray-800 mb-2">Why Learn Arabic NOW?</h2>
-            <p class="text-lg text-gray-600">Transform your mind, expand your world</p>
-          </div>
-
-          <div class="grid md:grid-cols-2 gap-6">
-            <div class="space-y-6">
-              <div class="flex items-start gap-4">
-                <span class="material-symbols-outlined text-2xl text-green-500 mt-1">language</span>
-                <div>
-                  <h3 class="font-bold text-lg text-gray-800">Connect with 400+ Million People</h3>
-                  <p class="text-gray-600">Arabic is spoken by over 400 million people across 22 countries. Open doors to new friendships, business opportunities, and cultural exchanges.</p>
-                </div>
-              </div>
-
-              <div class="flex items-start gap-4">
-                <span class="material-symbols-outlined text-2xl text-blue-500 mt-1">work</span>
-                <div>
-                  <h3 class="font-bold text-lg text-gray-800">Career Advancement</h3>
-                  <p class="text-gray-600">Arabic speakers are in high demand in diplomacy, international business, journalism, and technology. Stand out in the global job market.</p>
-                </div>
-              </div>
-
-              <div class="flex items-start gap-4">
-                <span class="material-symbols-outlined text-2xl text-purple-500 mt-1">psychology</span>
-                <div>
-                  <h3 class="font-bold text-lg text-gray-800">Mental Flexibility</h3>
-                  <p class="text-gray-600">Learning Arabic's unique right-to-left script and rich grammar enhances cognitive flexibility and problem-solving skills.</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="space-y-6">
-              <div class="flex items-start gap-4">
-                <span class="material-symbols-outlined text-2xl text-red-500 mt-1">auto_stories</span>
-                <div>
-                  <h3 class="font-bold text-lg text-gray-800">Rich Cultural Heritage</h3>
-                  <p class="text-gray-600">Access centuries of poetry, literature, and scientific texts in their original form. Understand the Quran, Arabic poetry, and historical documents.</p>
-                </div>
-              </div>
-
-              <div class="flex items-start gap-4">
-                <span class="material-symbols-outlined text-2xl text-indigo-500 mt-1">travel_explore</span>
-                <div>
-                  <h3 class="font-bold text-lg text-gray-800">Travel with Confidence</h3>
-                  <p class="text-gray-600">Navigate the Middle East and North Africa with ease. Experience authentic local culture and avoid tourist traps.</p>
-                </div>
-              </div>
-
-              <div class="flex items-start gap-4">
-                <span class="material-symbols-outlined text-2xl text-teal-500 mt-1">trending_up</span>
-                <div>
-                  <h3 class="font-bold text-lg text-gray-800">Growing Importance</h3>
-                  <p class="text-gray-600">As Middle Eastern economies grow, Arabic becomes increasingly valuable for trade, technology, and international relations.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-8 p-6 bg-white rounded-lg border-l-4 border-amber-400">
-            <h3 class="font-bold text-xl text-gray-800 mb-3">💪 Daily Motivation</h3>
-            <p class="text-gray-700 text-lg leading-relaxed mb-4">
-              "Every word you learn is a bridge to understanding. Every lesson completed is a step toward fluency.
-              The best time to plant a tree was 20 years ago. The second best time is now."
-            </p>
-            <div class="text-center">
-              <p class="text-2xl font-bold text-amber-600">Start Today. Your Future Self Will Thank You.</p>
-            </div>
-          </div>
-
-          <div class="mt-6 text-center">
-            <button @click="view='list'" class="px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-semibold">
-              Continue Learning →
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section v-if="view==='fullscreen'" class="fixed inset-0 bg-white z-50 flex flex-col">
-        <div class="flex justify-between items-center p-4 border-b bg-gray-50">
-          <h2 class="text-xl font-bold text-gray-800">{{ currentLesson?.title }}</h2>
-          <div class="flex gap-2">
-            <button @click="view='detail'" class="p-2 rounded hover:bg-gray-200" title="Exit Fullscreen">
-              <span class="material-symbols-outlined">fullscreen_exit</span>
-            </button>
-            <button @click="view='list'" class="p-2 rounded hover:bg-gray-200" title="Back to List">
-              <span class="material-symbols-outlined">close</span>
-            </button>
-          </div>
-        </div>
+      <section v-if="view==='fullscreen'" class="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex flex-col">
         
         <div class="flex-1 overflow-auto p-8" v-if="currentLesson">
+          <button @click="view='detail'" class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700" title="Exit Fullscreen">
+            <span class="material-symbols-outlined dark:text-white">fullscreen_exit</span>
+          </button>
           <div class="max-w-4xl mx-auto">
             <div v-for="(line, index) in contentLines" :key="index" class="mb-8">
               <canvas v-if="(index + 1) % 2 === 0" :ref="'fullscreen-canvas-' + index" 
-                class="border rounded bg-gray-50 w-full" style="height: 80px;">
+                class="border dark:border-gray-700 rounded bg-gray-50 dark:bg-gray-800 w-full" style="height: 80px;">
               </canvas>
-              <div v-else class="text-gray-800 leading-relaxed text-4xl text-right p-4" dir="rtl">{{ line }}</div>
+              <div v-else class="text-gray-800 dark:text-gray-200 leading-relaxed text-4xl text-right p-4" dir="rtl">{{ line }}</div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="view==='prelearn'" class="max-w-3xl mx-auto">
+        <div class="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-8">
+          <div class="text-center mb-8">
+            <span class="material-symbols-outlined text-5xl text-red-500 dark:text-red-400 mb-4">warning</span>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Essential Reading</h2>
+            <p class="text-gray-600 dark:text-gray-400">Before you begin your Arabic journey</p>
+          </div>
+          
+          <div class="space-y-6 text-gray-800 dark:text-gray-200 leading-relaxed">
+            <div v-for="(paragraph, index) in preLearningText" :key="index" class="text-lg">
+              {{ paragraph }}
+            </div>
+          </div>
+          
+          <div class="mt-8 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-r">
+            <p class="text-red-800 dark:text-red-200 font-semibold text-center">
+              This is not optional. This is your responsibility.
+            </p>
+          </div>
+          
+          <div class="mt-8 text-center">
+            <button @click="view='list'" class="px-6 py-3 bg-red-600 dark:bg-red-700 text-white rounded-lg hover:bg-red-700 dark:hover:bg-red-600 font-semibold">
+              I Understand - Begin Learning
+            </button>
           </div>
         </div>
       </section>
@@ -276,12 +213,21 @@
           lessons: [],
           form: { id: null, title: '', content: '' },
           editing: false,
-          currentLesson: null
+          currentLesson: null,
+          preLearningText: [
+            "Arabic is not just another language to learn for personal enrichment or career advancement. It is the language of the Quran, the final revelation from Allah to humanity.",
+            "Every Muslim has a fundamental obligation to understand the words of Allah in their original form. Learning Arabic is not merely recommended - it is a duty that connects you directly to your faith.",
+            "The Prophet Muhammad (peace be upon him) said: 'Love Arabic for three reasons: because I am Arab, because the Quran is in Arabic, and because the language of Paradise is Arabic.'",
+            "When you learn Arabic, you are not just acquiring vocabulary and grammar. You are unlocking the ability to understand Allah's direct words, without the barrier of translation.",
+            "Every moment you delay learning Arabic is a moment you remain distant from the true meaning of your prayers, your Quran recitation, and your connection with Allah.",
+            "This is your Islamic duty. This is your spiritual responsibility. This is your path to deeper faith and understanding.",
+            "Begin now. Allah is watching, and your effort in learning His language will be rewarded both in this life and the hereafter."
+          ]
         }
       },
       mounted() { this.fetchLessons() },
       methods: {
-        navClass(v) { return 'p-2 rounded ' + (this.view === v ? 'bg-indigo-100 text-indigo-600' : 'hover:bg-indigo-50'); },
+        navClass(v) { return 'p-2 rounded ' + (this.view === v ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400' : 'hover:bg-indigo-50 dark:hover:bg-gray-700 dark:text-white'); },
         async fetchLessons() {
           const { data } = await supabaseClient.from('lessons').select('*').order('id', { ascending: true });
           this.lessons = data || [];
@@ -320,7 +266,9 @@
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.font = '10px Inter, sans-serif';
-                ctx.fillStyle = '#22c55e';
+                // Check for dark mode
+                const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                ctx.fillStyle = isDark ? '#4ade80' : '#22c55e';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
 
@@ -336,7 +284,9 @@
 
                 ctx.clearRect(0, 0, fullscreenCanvas.width, fullscreenCanvas.height);
                 ctx.font = '16px Inter, sans-serif';
-                ctx.fillStyle = '#22c55e';
+                // Check for dark mode
+                const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                ctx.fillStyle = isDark ? '#4ade80' : '#22c55e';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
 
@@ -362,20 +312,6 @@
           this.lessons = this.lessons.filter(x => x.id !== id);
         },
         cancel() { this.editing = false; this.form = { id: null, title: '', content: '' }; this.view = 'list'; },
-        async seedIfEmpty() {
-          if (this.lessons.length) return;
-          const sample = [{
-            title: 'Basic Greetings', content: `السَّلامُ عَلَيْكُم
-Hello
-كَيْفَ حَالُكَ؟
-How are you?
-شُكْرًا جَزِيلًا
-Thank you very much
-مَعَ السَّلَامَة
-Goodbye`}];
-          await supabaseClient.from('lessons').insert(sample);
-          this.fetchLessons();
-        }
       },
       computed: {
         contentLines() {
@@ -385,6 +321,13 @@ Goodbye`}];
       watch: {
         currentLesson() {
           if (this.currentLesson) {
+            this.$nextTick(() => {
+              this.renderCanvasLines();
+            });
+          }
+        },
+        view() {
+          if (this.view === 'fullscreen' && this.currentLesson) {
             this.$nextTick(() => {
               this.renderCanvasLines();
             });

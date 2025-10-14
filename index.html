@@ -6,8 +6,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>TTS Learning Modules</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media'
+    }
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <style>
     html,
     body,
@@ -25,39 +31,66 @@
   </style>
 </head>
 
-<body class="bg-gradient-to-b from-indigo-50 to-cyan-50">
+<body class="bg-gray-50 dark:bg-gray-900">
 
   <div id="app" class="min-h-screen flex flex-col">
 
     <main class="flex-1 p-6">
-      <div class="max-w-4xl mx-auto">
-        <div class="text-center mb-8">
-          <h2 class="text-3xl font-bold text-slate-800 mb-4">Z-Anah Modules</h2>
-          <p class="text-gray-600 text-lg">Select a module</p>
+      <div class="max-w-2xl mx-auto">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-light text-gray-900 dark:text-white mb-2">Z-Anah</h1>
+          <p class="text-gray-600 dark:text-gray-400">Learning modules</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Vocabulary Module -->
-          <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6">
-            <div class="flex items-center justify-center w-16 h-16 bg-indigo-100 rounded-lg mb-4 mx-auto">
-              <span class="material-symbols-outlined text-indigo-600 text-3xl">menu_book</span>
+        <div class="space-y-3">
+          <div v-for="module in modules" :key="module.id" 
+               @click="openModule(module.url)"
+               class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-all duration-200 cursor-pointer group">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-gray-600 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ module.icon }}</span>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ module.title }}</h3>
+              </div>
+              <span class="material-symbols-outlined text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">arrow_forward</span>
             </div>
-            <h3 class="text-xl font-semibold text-center mb-3">Vocabulary Lessons</h3>
-            <button onclick="window.location.href='vocab.html'" 
-                    class="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors duration-200 flex items-center justify-center gap-2">
-              <span class="material-symbols-outlined">play_arrow</span>
-              Start Learning
-            </button>
           </div>
         </div>
       </div>
     </main>
 
-    <footer class="bg-white border-t p-4 text-center text-gray-500 text-sm">
-      <p>&copy; 2025 TTS Learning Platform. Built with Vue 3, Tailwind CSS, and Supabase.</p>
+    <footer class="border-t dark:border-gray-700 p-4 text-center text-gray-400 text-sm">
+      <p>&copy; 2025 TTS Learning Platform</p>
     </footer>
 
   </div>
+
+  <script>
+    Vue.createApp({
+      data() {
+        return {
+          modules: [
+            {
+              id: 'vocab',
+              title: 'Vocabulary Lessons',
+              icon: 'menu_book',
+              url: 'vocab.html'
+            },
+            {
+              id: 'prompter',
+              title: 'Prompt Engineering Lessons',
+              icon: 'lightbulb',
+              url: 'prompter.html'
+            },
+          ]
+        }
+      },
+      methods: {
+        openModule(url) {
+          window.location.href = url;
+        }
+      }
+    }).mount('#app');
+  </script>
 
 </body>
 

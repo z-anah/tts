@@ -15,6 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     html,
     body,
@@ -28,6 +29,91 @@
 
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+    }
+
+    .markdown-content {
+      line-height: 1.6;
+    }
+
+    .markdown-content h1,
+    .markdown-content h2,
+    .markdown-content h3 {
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      font-weight: 600;
+      color: #10b981;
+    }
+
+    .markdown-content h1 {
+      font-size: 1.5em;
+    }
+
+    .markdown-content h2 {
+      font-size: 1.3em;
+    }
+
+    .markdown-content h3 {
+      font-size: 1.1em;
+    }
+
+    .markdown-content p {
+      margin-bottom: 1em;
+    }
+
+    .markdown-content ul,
+    .markdown-content ol {
+      margin-bottom: 1em;
+      padding-left: 1.5em;
+    }
+
+    .markdown-content li {
+      margin-bottom: 0.25em;
+    }
+
+    .markdown-content code {
+      background-color: rgba(175, 184, 193, 0.2);
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+
+    .markdown-content pre {
+      background-color: rgba(175, 184, 193, 0.1);
+      padding: 1em;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin-bottom: 1em;
+    }
+
+    .markdown-content pre code {
+      background: none;
+      padding: 0;
+    }
+
+    .markdown-content blockquote {
+      border-left: 4px solid #e5e7eb;
+      padding-left: 1em;
+      margin: 1em 0;
+      color: #6b7280;
+    }
+
+    .dark .markdown-content code {
+      background-color: rgba(55, 65, 81, 0.5);
+    }
+
+    .dark .markdown-content pre {
+      background-color: rgba(55, 65, 81, 0.3);
+    }
+
+    .dark .markdown-content blockquote {
+      border-left-color: #4b5563;
+      color: #9ca3af;
+    }
+
+    /* bold */
+    .markdown-content strong {
+      font-weight: 600;
+      color: #10b981;
     }
   </style>
 </head>
@@ -64,9 +150,9 @@
             <span class="material-symbols-outlined dark:text-white">refresh</span>
           </button>
         </div>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div v-for="prompt in prompts" :key="prompt.id" 
+          <div v-for="prompt in prompts" :key="prompt.id"
                class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow">
             <div class="flex justify-between items-start mb-3">
               <div class="flex-1">
@@ -98,7 +184,7 @@
             </p>
           </div>
         </div>
-        
+
         <div v-if="!prompts.length" class="text-center text-gray-500 dark:text-gray-400 mt-10">
           No prompts yet. Create your first prompt!
         </div>
@@ -110,7 +196,7 @@
           <h2 class="text-2xl font-bold mb-6 dark:text-white">
             {{ editing ? 'Edit Prompt' : 'Create New Prompt' }}
           </h2>
-          
+
           <form @submit.prevent="savePrompt" class="space-y-6">
             <!-- Default Parameters -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -160,7 +246,7 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                More Context 
+                More Context
                 <button type="button" @click="form.more_context = ''" class="text-xs text-red-600 dark:text-red-400 ml-2">
                   (clear)
                 </button>
@@ -174,18 +260,18 @@
             <div>
               <div class="flex justify-between items-center mb-3">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dynamic Parameters</label>
-                <button type="button" @click="addParameter" 
+                <button type="button" @click="addParameter"
                         class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
                   Add Parameter
                 </button>
               </div>
-              <div v-for="(param, index) in form.dynamic_params" :key="index" 
+              <div v-for="(param, index) in form.dynamic_params" :key="index"
                    class="flex gap-2 mb-2">
-                <input v-model="param.key" placeholder="Parameter name" 
+                <input v-model="param.key" placeholder="Parameter name"
                        class="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm">
-                <input v-model="param.value" placeholder="Default value" 
+                <input v-model="param.value" placeholder="Default value"
                        class="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm">
-                <button type="button" @click="removeParameter(index)" 
+                <button type="button" @click="removeParameter(index)"
                         class="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
                   <span class="material-symbols-outlined text-sm">delete</span>
                 </button>
@@ -196,17 +282,17 @@
             <div>
               <div class="flex justify-between items-center mb-3">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contents</label>
-                <button type="button" @click="addContent" 
+                <button type="button" @click="addContent"
                         class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
                   Add Content
                 </button>
               </div>
-              <div v-for="(content, index) in form.contents" :key="index" 
+              <div v-for="(content, index) in form.contents" :key="index"
                    class="border dark:border-gray-600 rounded p-3 mb-3">
                 <div class="flex justify-between items-center mb-2">
-                  <input v-model="content.title" placeholder="Content title" 
+                  <input v-model="content.title" placeholder="Content title"
                          class="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm mr-2">
-                  <button type="button" @click="removeContent(index)" 
+                  <button type="button" @click="removeContent(index)"
                           class="p-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
                     <span class="material-symbols-outlined text-sm">delete</span>
                   </button>
@@ -218,11 +304,11 @@
 
             <!-- Actions -->
             <div class="flex justify-end gap-3 pt-4 border-t dark:border-gray-600">
-              <button type="button" @click="cancelEdit" 
+              <button type="button" @click="cancelEdit"
                       class="px-4 py-2 border dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
                 Cancel
               </button>
-              <button type="submit" 
+              <button type="submit"
                       class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
                 {{ editing ? 'Update' : 'Create' }} Prompt
               </button>
@@ -281,7 +367,7 @@
           <div v-if="currentPrompt.dynamic_params?.length" class="mb-6">
             <h3 class="text-lg font-semibold dark:text-white mb-3">Dynamic Parameters</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div class="pace-y-3">
+              <div class="space-y-3">
                 <div v-for="(param, index) in currentPrompt.dynamic_params" :key="param.key">
                   <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ param.key }}:</span>
                   <p class="dark:text-white">{{ param.value }}</p>
@@ -289,13 +375,9 @@
               </div>
             </div>
             <div class="mt-4 flex gap-3">
-              <button @click="generatePrompt" 
+              <button @click="generatePrompt"
                       class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
                 Generate Prompt
-              </button>
-              <button @click="resetParams" 
-                      class="px-4 py-2 border dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
-                Reset to Defaults
               </button>
             </div>
           </div>
@@ -306,7 +388,7 @@
             <div class="border dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
               <pre class="whitespace-pre-wrap text-sm dark:text-gray-200">{{ generatedPrompt }}</pre>
               <div class="mt-3 flex gap-2">
-                <button @click="copyToClipboard" 
+                <button @click="copyToClipboard"
                         class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
                   Copy to Clipboard
                 </button>
@@ -318,10 +400,10 @@
           <div v-if="currentPrompt.contents?.length">
             <h3 class="text-lg font-semibold dark:text-white mb-3">Contents</h3>
             <div class="space-y-4">
-              <div v-for="(content, index) in currentPrompt.contents" :key="index" 
-                   class="border dark:border-gray-600 rounded-lg p-4">
+              <div v-for="(content, index) in currentPrompt.contents" :key="index" >
                 <h4 class="font-medium dark:text-white mb-2">{{ content.title || `Content ${index + 1}` }}</h4>
-                <pre class="bg-gray-50 dark:bg-gray-700 p-3 rounded text-sm overflow-x-auto dark:text-gray-200">{{ content.text }}</pre>
+                <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded text-sm overflow-x-auto markdown-content dark:text-gray-200"
+                     v-html="renderMarkdown(content.text)"></div>
               </div>
             </div>
           </div>
@@ -368,12 +450,12 @@
         navClass(v) {
           return 'p-2 rounded ' + (this.view === v ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400' : 'hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white');
         },
-        
+
         async fetchPrompts() {
           const { data } = await supabaseClient.from('prompts').select('*').order('created_at', { ascending: false });
           this.prompts = data || [];
         },
-        
+
         viewPrompt(prompt) {
           this.currentPrompt = prompt;
           this.initializeDynamicParams();
@@ -390,36 +472,31 @@
           }
         },
 
-        resetParams() {
-          this.initializeDynamicParams();
-          this.generatedPrompt = '';
-        },
-
         generatePrompt() {
           if (!this.currentPrompt) return;
-          
+
           let prompt = '';
-          
+
           // Add persona
           if (this.currentPrompt.persona) {
             prompt += `You are a ${this.currentPrompt.persona}.\n\n`;
           }
-          
+
           // Add task
           if (this.currentPrompt.task) {
             prompt += `Task: ${this.currentPrompt.task}\n\n`;
           }
-          
+
           // Add context
           if (this.currentPrompt.context) {
             prompt += `Context: ${this.currentPrompt.context}\n\n`;
           }
-          
+
           // Add more context
           if (this.currentPrompt.more_context) {
             prompt += `Additional Context: ${this.currentPrompt.more_context}\n\n`;
           }
-          
+
           // Replace dynamic parameters in all text
           let finalPrompt = prompt;
           if (this.currentPrompt.dynamic_params) {
@@ -428,28 +505,26 @@
               finalPrompt = finalPrompt.replace(new RegExp(`\\{${param.key}\\}`, 'g'), value);
             });
           }
-          
+
           // Add format
           if (this.currentPrompt.format) {
             finalPrompt += `Format: ${this.currentPrompt.format}\n\n`;
           }
-          
+
           // Add file type instruction
           if (this.currentPrompt.file_type) {
             finalPrompt += `Output as ${this.currentPrompt.file_type} file format.\n\n`;
           }
-          
-          // Add contents
-          if (this.currentPrompt.contents?.length) {
-            finalPrompt += `Content to process:\n\n`;
-            this.currentPrompt.contents.forEach((content, index) => {
-              if (content.title) {
-                finalPrompt += `${content.title}:\n`;
-              }
-              finalPrompt += `${content.text}\n\n`;
+
+          // Add Dynamic Parameters values
+          if (this.currentPrompt.dynamic_params && this.currentPrompt.dynamic_params.length) {
+            this.currentPrompt.dynamic_params.forEach(param => {
+              const value = this.dynamicParamValues[param.key] || param.value;
+              finalPrompt += `${param.key}: ${value}\n`;
             });
+            finalPrompt += '\n';
           }
-          
+
           this.generatedPrompt = finalPrompt.trim();
         },
 
@@ -470,7 +545,7 @@
             alert('Copied to clipboard!');
           }
         },
-        
+
         editPrompt(prompt) {
           this.editing = true;
           this.form = {
@@ -487,7 +562,7 @@
           };
           this.view = 'create';
         },
-        
+
         async savePrompt() {
           const promptData = {
             title: this.form.title.trim(),
@@ -508,7 +583,7 @@
               .eq('id', this.form.id)
               .select()
               .single();
-            
+
             if (data) {
               const index = this.prompts.findIndex(p => p.id === data.id);
               if (index >= 0) this.prompts.splice(index, 1, data);
@@ -519,20 +594,20 @@
               .insert([promptData])
               .select()
               .single();
-            
+
             if (data) this.prompts.unshift(data);
           }
-          
+
           this.cancelEdit();
         },
-        
+
         async deletePrompt(id) {
           if (confirm('Are you sure you want to delete this prompt?')) {
             await supabaseClient.from('prompts').delete().eq('id', id);
             this.prompts = this.prompts.filter(p => p.id !== id);
           }
         },
-        
+
         cancelEdit() {
           this.editing = false;
           this.form = {
@@ -549,22 +624,32 @@
           };
           this.view = 'list';
         },
-        
+
         addParameter() {
           this.form.dynamic_params.push({ key: '', value: '' });
         },
-        
+
         removeParameter(index) {
           this.form.dynamic_params.splice(index, 1);
         },
-        
+
         addContent() {
           this.form.contents.push({ title: '', text: '' });
         },
-        
+
         removeContent(index) {
           this.form.contents.splice(index, 1);
-        }
+        },
+
+        renderMarkdown(text) {
+          if (!text) return '';
+          try {
+            return marked.parse(text);
+          } catch (error) {
+            console.error('Markdown parsing error:', error);
+            return text.replace(/\n/g, '<br>');
+          }
+        },
       }
     }).mount('#app');
   </script>

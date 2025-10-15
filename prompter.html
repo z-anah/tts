@@ -153,7 +153,8 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="prompt in prompts" :key="prompt.id"
-               class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow">
+               @click="viewPrompt(prompt)"
+               class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
             <div class="flex justify-between items-start mb-3">
               <div class="flex-1">
                 <h3 class="font-semibold text-lg dark:text-white">{{ prompt.title }}</h3>
@@ -168,13 +169,13 @@
                 </div>
               </div>
               <div class="flex gap-1 ml-2">
-                <button @click="viewPrompt(prompt)" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                <button @click.stop="viewPrompt(prompt)" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                   <span class="material-symbols-outlined text-sm dark:text-white">visibility</span>
                 </button>
-                <button @click="editPrompt(prompt)" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                <button @click.stop="editPrompt(prompt)" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                   <span class="material-symbols-outlined text-sm dark:text-white">edit</span>
                 </button>
-                <button @click="deletePrompt(prompt.id)" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                <button @click.stop="deletePrompt(prompt.id)" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                   <span class="material-symbols-outlined text-sm text-red-600 dark:text-red-400">delete</span>
                 </button>
               </div>

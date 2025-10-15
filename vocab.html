@@ -69,20 +69,22 @@
           </button>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div v-for="l in lessons" :key="l.id" class="p-4 bg-white dark:bg-gray-800 rounded-xl shadow">
+          <div v-for="l in lessons" :key="l.id" 
+               @click="viewDetail(l)"
+               class="p-4 bg-white dark:bg-gray-800 rounded-xl shadow cursor-pointer hover:shadow-lg transition-shadow">
             <div class="flex justify-between items-start">
               <div>
                 <h3 class="font-bold dark:text-white">{{ l.title }}</h3>
                 <p class="text-xs text-gray-500 dark:text-gray-400">ID: {{ l.id }}</p>
               </div>
               <div class="flex gap-2">
-                <button @click="copyLesson(l)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-gray-700" title="Copy">
+                <button @click.stop="copyLesson(l)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-gray-700" title="Copy">
                   <span class="material-symbols-outlined dark:text-white">content_copy</span>
                 </button>
-                <button @click="viewDetail(l)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-gray-700">
+                <button @click.stop="viewDetail(l)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-gray-700">
                   <span class="material-symbols-outlined dark:text-white">visibility</span>
                 </button>
-                <button @click="removeLesson(l.id)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-gray-700">
+                <button @click.stop="removeLesson(l.id)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-gray-700">
                   <span class="material-symbols-outlined dark:text-white">delete</span>
                 </button>
               </div>

@@ -114,6 +114,24 @@
       font-weight: 600;
       color: #10b981;
     }
+
+    /* Links */
+    .markdown-content a {
+      color: #3b82f6;
+      text-decoration: underline;
+    }
+
+    .markdown-content a:hover {
+      color: #1d4ed8;
+    }
+
+    .dark .markdown-content a {
+      color: #60a5fa;
+    }
+
+    .dark .markdown-content a:hover {
+      color: #93c5fd;
+    }
   </style>
 </head>
 
@@ -281,7 +299,9 @@
         }
       },
       mounted() {
-        this.fetchMotivations();
+        this.fetchMotivations().then(() => {
+          this.restoreViewState();
+        });
       },
       methods: {
         navClass(v) {
@@ -296,6 +316,7 @@
         viewMotivation(motivation) {
           this.currentMotivation = motivation;
           this.view = 'detail';
+          this.saveViewState();
         },
 
         editMotivation(motivation) {
@@ -306,6 +327,7 @@
             text: motivation.text || ''
           };
           this.view = 'create';
+          this.saveViewState();
         },
 
         async saveMotivation() {
@@ -359,6 +381,45 @@
             text: ''
           };
           this.view = 'list';
+          this.saveViewState();
+        },
+
+        saveViewState() {
+          const state = {
+            view: this.view,
+            currentMotivationId: this.currentMotivation?.id || null,
+            editing: this.editing,
+            formId: this.form.id
+          };
+          localStorage.setItem('motivation-view-state', JSON.stringify(state));
+        },
+
+        restoreViewState() {
+          try {
+            const savedState = localStorage.getItem('motivation-view-state');
+            if (savedState) {
+              const state = JSON.parse(savedState);
+              
+              if (state.currentMotivationId) {
+                const motivation = this.motivations.find(m => m.id === state.currentMotivationId);
+                if (motivation) {
+                  this.currentMotivation = motivation;
+                }
+              }
+              
+              if (state.editing && state.formId) {
+                const motivation = this.motivations.find(m => m.id === state.formId);
+                if (motivation) {
+                  this.editMotivation(motivation);
+                  return; // editMotivation already sets the view
+                }
+              }
+              
+              this.view = state.view || 'list';
+            }
+          } catch (error) {
+            console.error('Error restoring view state:', error);
+          }
         },
 
         async copyToClipboard(motivation) {
@@ -399,6 +460,11 @@
             return text.replace(/\n/g, '<br>');
           }
         },
+      },
+      watch: {
+        view() {
+          this.saveViewState();
+        }
       }
     }).mount('#app');
   </script>

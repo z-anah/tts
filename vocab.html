@@ -227,7 +227,11 @@
           ]
         }
       },
-      mounted() { this.fetchLessons() },
+      mounted() { 
+        this.fetchLessons().then(() => {
+          this.restoreViewState();
+        });
+      },
       methods: {
         navClass(v) { return 'p-2 rounded ' + (this.view === v ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400' : 'hover:bg-indigo-50 dark:hover:bg-gray-700 dark:text-white'); },
         async fetchLessons() {
@@ -255,6 +259,7 @@
         viewDetail(lesson) {
           this.currentLesson = lesson;
           this.view = 'detail';
+          this.saveViewState();
         },
         renderCanvasLines() {
           this.contentLines.forEach((line, index) => {
@@ -297,7 +302,12 @@
             }
           });
         },
-        startEdit(l) { this.form = { ...l }; this.editing = true; this.view = 'create'; },
+        startEdit(l) { 
+          this.form = { ...l }; 
+          this.editing = true; 
+          this.view = 'create';
+          this.saveViewState();
+        },
         async updateLesson() {
           const { data } = await supabaseClient.from('lessons').update({
             title: this.form.title.trim(),
@@ -313,7 +323,48 @@
           await supabaseClient.from('lessons').delete().eq('id', id);
           this.lessons = this.lessons.filter(x => x.id !== id);
         },
-        cancel() { this.editing = false; this.form = { id: null, title: '', content: '' }; this.view = 'list'; },
+        cancel() { 
+          this.editing = false; 
+          this.form = { id: null, title: '', content: '' }; 
+          this.view = 'list';
+          this.saveViewState();
+        },
+        saveViewState() {
+          const state = {
+            view: this.view,
+            currentLessonId: this.currentLesson?.id || null,
+            editing: this.editing,
+            formId: this.form.id
+          };
+          localStorage.setItem('vocab-view-state', JSON.stringify(state));
+        },
+        restoreViewState() {
+          try {
+            const savedState = localStorage.getItem('vocab-view-state');
+            if (savedState) {
+              const state = JSON.parse(savedState);
+              
+              if (state.currentLessonId) {
+                const lesson = this.lessons.find(l => l.id === state.currentLessonId);
+                if (lesson) {
+                  this.currentLesson = lesson;
+                }
+              }
+              
+              if (state.editing && state.formId) {
+                const lesson = this.lessons.find(l => l.id === state.formId);
+                if (lesson) {
+                  this.startEdit(lesson);
+                  return; // startEdit already sets the view
+                }
+              }
+              
+              this.view = state.view || 'list';
+            }
+          } catch (error) {
+            console.error('Error restoring view state:', error);
+          }
+        },
       },
       computed: {
         contentLines() {
@@ -329,6 +380,7 @@
           }
         },
         view() {
+          this.saveViewState();
           if (this.view === 'fullscreen' && this.currentLesson) {
             this.$nextTick(() => {
               this.renderCanvasLines();

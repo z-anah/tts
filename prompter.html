@@ -115,6 +115,24 @@
       font-weight: 600;
       color: #10b981;
     }
+
+    /* Links */
+    .markdown-content a {
+      color: #3b82f6;
+      text-decoration: underline;
+    }
+
+    .markdown-content a:hover {
+      color: #1d4ed8;
+    }
+
+    .dark .markdown-content a {
+      color: #60a5fa;
+    }
+
+    .dark .markdown-content a:hover {
+      color: #93c5fd;
+    }
   </style>
 </head>
 
@@ -445,7 +463,9 @@
         }
       },
       mounted() {
-        this.fetchPrompts();
+        this.fetchPrompts().then(() => {
+          this.restoreViewState();
+        });
       },
       methods: {
         navClass(v) {
@@ -461,6 +481,7 @@
           this.currentPrompt = prompt;
           this.initializeDynamicParams();
           this.view = 'detail';
+          this.saveViewState();
         },
 
         initializeDynamicParams() {
@@ -562,6 +583,7 @@
             contents: prompt.contents || []
           };
           this.view = 'create';
+          this.saveViewState();
         },
 
         async savePrompt() {
@@ -624,6 +646,7 @@
             contents: []
           };
           this.view = 'list';
+          this.saveViewState();
         },
 
         addParameter() {
@@ -651,10 +674,55 @@
             return text.replace(/\n/g, '<br>');
           }
         },
+
+        saveViewState() {
+          const state = {
+            view: this.view,
+            currentPromptId: this.currentPrompt?.id || null,
+            editing: this.editing,
+            formId: this.form.id
+          };
+          localStorage.setItem('prompter-view-state', JSON.stringify(state));
+        },
+
+        restoreViewState() {
+          try {
+            const savedState = localStorage.getItem('prompter-view-state');
+            if (savedState) {
+              const state = JSON.parse(savedState);
+              
+              if (state.currentPromptId) {
+                const prompt = this.prompts.find(p => p.id === state.currentPromptId);
+                if (prompt) {
+                  this.currentPrompt = prompt;
+                  this.initializeDynamicParams();
+                }
+              }
+              if (state.view) this.view = state.view;
+              this.editing = state.editing || false;
+              if (this.editing && state.formId) {
+                const prompt = this.prompts.find(p => p.id === state.formId);
+                if (prompt) {
+                  this.form = {
+                    id: prompt.id,
+                    title: prompt.title || '',
+                    task: prompt.task || '',
+                    persona: prompt.persona || '',
+                    context: prompt.context || '',
+                    format: prompt.format || '',
+                    file_type: prompt.file_type || '',
+                    more_context: prompt.more_context || '',
+                    dynamic_params: prompt.dynamic_params || [],
+                    contents: prompt.contents || []
+                  };
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Failed to restore view state:', error);
+          }
+        }
       }
     }).mount('#app');
   </script>
-
 </body>
-
-</html>

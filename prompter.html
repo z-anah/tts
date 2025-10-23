@@ -16,124 +16,7 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <style>
-    html,
-    body,
-    #app {
-      height: 100%;
-    }
-
-    body {
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    }
-
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
-    }
-
-    .markdown-content {
-      line-height: 1.6;
-    }
-
-    .markdown-content h1,
-    .markdown-content h2,
-    .markdown-content h3 {
-      margin-top: 1.5em;
-      margin-bottom: 0.5em;
-      font-weight: 600;
-      color: #10b981;
-    }
-
-    .markdown-content h1 {
-      font-size: 1.5em;
-    }
-
-    .markdown-content h2 {
-      font-size: 1.3em;
-    }
-
-    .markdown-content h3 {
-      font-size: 1.1em;
-    }
-
-    .markdown-content p {
-      margin-bottom: 1em;
-    }
-
-    .markdown-content ul,
-    .markdown-content ol {
-      margin-bottom: 1em;
-      padding-left: 1.5em;
-    }
-
-    .markdown-content li {
-      margin-bottom: 0.25em;
-    }
-
-    .markdown-content code {
-      background-color: rgba(175, 184, 193, 0.2);
-      padding: 0.2em 0.4em;
-      border-radius: 3px;
-      font-size: 0.9em;
-    }
-
-    .markdown-content pre {
-      background-color: rgba(175, 184, 193, 0.1);
-      padding: 1em;
-      border-radius: 6px;
-      overflow-x: auto;
-      margin-bottom: 1em;
-    }
-
-    .markdown-content pre code {
-      background: none;
-      padding: 0;
-    }
-
-    .markdown-content blockquote {
-      border-left: 4px solid #e5e7eb;
-      padding-left: 1em;
-      margin: 1em 0;
-      color: #6b7280;
-    }
-
-    .dark .markdown-content code {
-      background-color: rgba(55, 65, 81, 0.5);
-    }
-
-    .dark .markdown-content pre {
-      background-color: rgba(55, 65, 81, 0.3);
-    }
-
-    .dark .markdown-content blockquote {
-      border-left-color: #4b5563;
-      color: #9ca3af;
-    }
-
-    /* bold */
-    .markdown-content strong {
-      font-weight: 600;
-      color: #10b981;
-    }
-
-    /* Links */
-    .markdown-content a {
-      color: #3b82f6;
-      text-decoration: underline;
-    }
-
-    .markdown-content a:hover {
-      color: #1d4ed8;
-    }
-
-    .dark .markdown-content a {
-      color: #60a5fa;
-    }
-
-    .dark .markdown-content a:hover {
-      color: #93c5fd;
-    }
-  </style>
+  <link href="styles.css" rel="stylesheet">
 </head>
 
 <body class="bg-gray-50 dark:bg-gray-900">
@@ -170,21 +53,11 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div v-for="prompt in prompts" :key="prompt.id"
-               @click="viewPrompt(prompt)"
-               class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
+          <div v-for="prompt in prompts" :key="prompt.id" @click="viewPrompt(prompt)"
+            class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
             <div class="flex justify-between items-start mb-3">
               <div class="flex-1">
-                <h3 class="font-semibold text-lg dark:text-white">{{ prompt.title }}</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400">{{ prompt.task }}</p>
-                <div class="mt-2 flex flex-wrap gap-1">
-                  <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded">
-                    {{ prompt.persona }}
-                  </span>
-                  <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded">
-                    {{ prompt.file_type }}
-                  </span>
-                </div>
+                <p class="font-semibold text-sm dark:text-white">{{ prompt.title }}</p>
               </div>
               <div class="flex gap-1 ml-2">
                 <button @click.stop="viewPrompt(prompt)" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -193,7 +66,8 @@
                 <button @click.stop="editPrompt(prompt)" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                   <span class="material-symbols-outlined text-sm dark:text-white">edit</span>
                 </button>
-                <button @click.stop="deletePrompt(prompt.id)" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                <button @click.stop="deletePrompt(prompt.id)"
+                  class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                   <span class="material-symbols-outlined text-sm text-red-600 dark:text-red-400">delete</span>
                 </button>
               </div>
@@ -218,26 +92,21 @@
 
           <form @submit.prevent="savePrompt" class="space-y-6">
             <!-- Default Parameters -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+            <div>
+              <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Title</label>
                 <input v-model="form.title" type="text" required
-                       class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white">
+                  class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white">
               </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Task</label>
-                <input v-model="form.task" type="text" required
-                       class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white">
-              </div>
-              <div>
+              <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Persona</label>
                 <input v-model="form.persona" type="text" required
-                       class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white">
+                  class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white">
               </div>
-              <div>
+              <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">File Type</label>
                 <select v-model="form.file_type" required
-                        class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white">
+                  class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white">
                   <option value="">Select file type</option>
                   <option value="txt">Text (.txt)</option>
                   <option value="md">Markdown (.md)</option>
@@ -249,30 +118,38 @@
               </div>
             </div>
 
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Task</label>
+              <textarea v-model="form.task"
+                class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white"
+                placeholder="Background context for the prompt"></textarea>
+            </div>
+
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Context</label>
-              <textarea v-model="form.context" rows="3"
-                        class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white"
-                        placeholder="Background context for the prompt"></textarea>
+              <textarea v-model="form.context"
+                class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white"
+                placeholder="Background context for the prompt"></textarea>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Format</label>
-              <textarea v-model="form.format" rows="2"
-                        class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white"
-                        placeholder="Expected output format"></textarea>
+              <textarea v-model="form.format"
+                class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white"
+                placeholder="Expected output format"></textarea>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 More Context
-                <button type="button" @click="form.more_context = ''" class="text-xs text-red-600 dark:text-red-400 ml-2">
+                <button type="button" @click="form.more_context = ''"
+                  class="text-xs text-red-600 dark:text-red-400 ml-2">
                   (clear)
                 </button>
               </label>
               <textarea v-model="form.more_context" rows="3"
-                        class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white"
-                        placeholder="Additional context (optional)"></textarea>
+                class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white"
+                placeholder="Additional context (optional)"></textarea>
             </div>
 
             <!-- Dynamic Parameters -->
@@ -280,18 +157,17 @@
               <div class="flex justify-between items-center mb-3">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dynamic Parameters</label>
                 <button type="button" @click="addParameter"
-                        class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                  class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
                   Add Parameter
                 </button>
               </div>
-              <div v-for="(param, index) in form.dynamic_params" :key="index"
-                   class="flex gap-2 mb-2">
+              <div v-for="(param, index) in form.dynamic_params" :key="index" class="flex gap-2 mb-2">
                 <input v-model="param.key" placeholder="Parameter name"
-                       class="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm">
+                  class="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm">
                 <input v-model="param.value" placeholder="Default value"
-                       class="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm">
+                  class="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm">
                 <button type="button" @click="removeParameter(index)"
-                        class="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
+                  class="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
                   <span class="material-symbols-outlined text-sm">delete</span>
                 </button>
               </div>
@@ -302,33 +178,32 @@
               <div class="flex justify-between items-center mb-3">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contents</label>
                 <button type="button" @click="addContent"
-                        class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                  class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
                   Add Content
                 </button>
               </div>
               <div v-for="(content, index) in form.contents" :key="index"
-                   class="border dark:border-gray-600 rounded p-3 mb-3">
+                class="border dark:border-gray-600 rounded p-3 mb-3">
                 <div class="flex justify-between items-center mb-2">
                   <input v-model="content.title" placeholder="Content title"
-                         class="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm mr-2">
+                    class="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm mr-2">
                   <button type="button" @click="removeContent(index)"
-                          class="p-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
+                    class="p-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
                     <span class="material-symbols-outlined text-sm">delete</span>
                   </button>
                 </div>
-                <textarea v-model="content.text" rows="4" placeholder="Paste your content here..."
-                          class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm"></textarea>
+                <textarea v-model="content.text" placeholder="Paste your content here..."
+                  class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm"></textarea>
               </div>
             </div>
 
             <!-- Actions -->
             <div class="flex justify-end gap-3 pt-4 border-t dark:border-gray-600">
               <button type="button" @click="cancelEdit"
-                      class="px-4 py-2 border dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                class="px-4 py-2 border dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
                 Cancel
               </button>
-              <button type="submit"
-                      class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+              <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
                 {{ editing ? 'Update' : 'Create' }} Prompt
               </button>
             </div>
@@ -342,7 +217,6 @@
           <div class="flex justify-between items-start mb-6">
             <div>
               <h2 class="text-3xl font-bold dark:text-white">{{ currentPrompt.title }}</h2>
-              <p class="text-gray-600 dark:text-gray-400 mt-1">{{ currentPrompt.task }}</p>
             </div>
             <div class="flex gap-2">
               <button @click="editPrompt(currentPrompt)" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -355,47 +229,39 @@
           </div>
 
           <!-- Parameters -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div class="space-y-3">
-              <div>
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Persona:</span>
-                <p class="dark:text-white">{{ currentPrompt.persona }}</p>
-              </div>
-              <div>
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">File Type:</span>
-                <p class="dark:text-white">{{ currentPrompt.file_type }}</p>
-              </div>
-              <div v-if="currentPrompt.context">
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Context:</span>
-                <p class="dark:text-white">{{ currentPrompt.context }}</p>
-              </div>
-            </div>
-            <div class="space-y-3">
-              <div v-if="currentPrompt.format">
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Format:</span>
-                <p class="dark:text-white">{{ currentPrompt.format }}</p>
-              </div>
-              <div v-if="currentPrompt.more_context">
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">More Context:</span>
-                <p class="dark:text-white">{{ currentPrompt.more_context }}</p>
-              </div>
-            </div>
+          <div class="mb-3">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Task:</span>
+            <div class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.task)"></div>
+          </div>
+          <div class="mb-3">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Persona:</span>
+            <div class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.persona)"></div>
+          </div>
+          <div class="mb-3">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">File Type:</span>
+            <div class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.file_type)"></div>
+          </div>
+          <div v-if="currentPrompt.context" class="mb-3">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Context:</span>
+            <div class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.context)"></div>
+          </div>
+          <div v-if="currentPrompt.format" class="mb-3">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Format:</span>
+            <div class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.format)"></div>
+          </div>
+          <div v-if="currentPrompt.more_context" class="mb-3">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">More Context:</span>
+            <div class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.more_context)"></div>
           </div>
 
           <!-- Dynamic Parameters -->
           <div v-if="currentPrompt.dynamic_params?.length" class="mb-6">
-            <h3 class="text-lg font-semibold dark:text-white mb-3">Dynamic Parameters</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div class="space-y-3">
-                <div v-for="(param, index) in currentPrompt.dynamic_params" :key="param.key">
-                  <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ param.key }}:</span>
-                  <p class="dark:text-white">{{ param.value }}</p>
-                </div>
-              </div>
+            <div v-for="(param, index) in currentPrompt.dynamic_params" :key="param.key" class="mb-3">
+              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ param.key }}:</span>
+              <div class="dark:text-white markdown-content" v-html="renderMarkdown(param.value)"></div>
             </div>
             <div class="mt-4 flex gap-3">
-              <button @click="generatePrompt"
-                      class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+              <button @click="generatePrompt" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
                 Generate Prompt
               </button>
             </div>
@@ -408,7 +274,7 @@
               <pre class="whitespace-pre-wrap text-sm dark:text-gray-200">{{ generatedPrompt }}</pre>
               <div class="mt-3 flex gap-2">
                 <button @click="copyToClipboard"
-                        class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                  class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
                   Copy to Clipboard
                 </button>
               </div>
@@ -419,11 +285,14 @@
           <div v-if="currentPrompt.contents?.length">
             <h3 class="text-lg font-semibold dark:text-white mb-3">Contents</h3>
             <div class="space-y-4">
-              <div v-for="(content, index) in currentPrompt.contents" :key="index" >
-                <h4 class="font-medium dark:text-white mb-2">{{ content.title || `Content ${index + 1}` }}</h4>
-                <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded text-sm overflow-x-auto markdown-content dark:text-gray-200"
-                     v-html="renderMarkdown(content.text)"></div>
-              </div>
+              <details v-for="(content, index) in currentPrompt.contents" :key="index">
+                <summary class="font-medium dark:text-white mb-2 border-b pb-1 cursor-pointer">
+                  {{ content.title || `Content ${index + 1}` }}
+                </summary>
+                <div
+                  class="text-sm overflow-x-auto markdown-content dark:text-gray-200"
+                  v-html="renderMarkdown(content.text)"></div>
+              </details>
             </div>
           </div>
         </div>
@@ -501,22 +370,22 @@
 
           // Add persona
           if (this.currentPrompt.persona) {
-            prompt += `You are a ${this.currentPrompt.persona}.\n\n`;
+            prompt += `Persona: \n${this.currentPrompt.persona}.\n\n`;
           }
 
           // Add task
           if (this.currentPrompt.task) {
-            prompt += `Task: ${this.currentPrompt.task}\n\n`;
+            prompt += `Task: \n${this.currentPrompt.task}\n\n`;
           }
 
           // Add context
           if (this.currentPrompt.context) {
-            prompt += `Context: ${this.currentPrompt.context}\n\n`;
+            prompt += `Context: \n${this.currentPrompt.context}\n\n`;
           }
 
           // Add more context
           if (this.currentPrompt.more_context) {
-            prompt += `Additional Context: ${this.currentPrompt.more_context}\n\n`;
+            prompt += `Additional Context: \n${this.currentPrompt.more_context}\n\n`;
           }
 
           // Replace dynamic parameters in all text
@@ -530,12 +399,12 @@
 
           // Add format
           if (this.currentPrompt.format) {
-            finalPrompt += `Format: ${this.currentPrompt.format}\n\n`;
+            finalPrompt += `Format: \n${this.currentPrompt.format}\n\n`;
           }
 
           // Add file type instruction
           if (this.currentPrompt.file_type) {
-            finalPrompt += `Put in ${this.currentPrompt.file_type} code.\n\n`;
+            finalPrompt += `Put in ${this.currentPrompt.file_type} code. And add name of the file.\n\n`;
           }
 
           // Add Dynamic Parameters values
@@ -690,7 +559,7 @@
             const savedState = localStorage.getItem('prompter-view-state');
             if (savedState) {
               const state = JSON.parse(savedState);
-              
+
               if (state.currentPromptId) {
                 const prompt = this.prompts.find(p => p.id === state.currentPromptId);
                 if (prompt) {
@@ -725,4 +594,5 @@
       }
     }).mount('#app');
   </script>
+  <script src="auto-resize.js"></script>
 </body>

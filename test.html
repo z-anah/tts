@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Plan de guerre 5 ans — Très hard</title>
+
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&family=Source+Code+Pro:wght@400;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+  <style>
+    /* Reset & base */
+    :root {
+      --bg-1: #0b0b0b;
+      --bg-2: #100707;
+      --accent: #ff4800;
+      --accent-2: #ffb347;
+      --muted: #bdbdbd;
+      --glass: rgba(255, 255, 255, 0.03);
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Source Code Pro", monospace;
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(255, 80, 0, 0.06), transparent),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      color: #f6f6f6;
+      -webkit-font-smoothing: antialiased;
+      overflow-y: auto;
+      line-height: 1.45;
+    }
+
+    /* Burning gradient animation (background) */
+    .sky-fire {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(600px 300px at 20% 10%, rgba(255, 72, 0, 0.06), transparent),
+        radial-gradient(500px 260px at 85% 30%, rgba(255, 180, 71, 0.04), transparent),
+        linear-gradient(180deg, rgba(255, 40, 0, 0.02), transparent 40%);
+      mix-blend-mode: screen;
+      animation: burnShift 8s linear infinite;
+      filter: blur(30px) saturate(140%);
+      opacity: 0.9;
+    }
+
+    @keyframes burnShift {
+      0% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(-12px) scale(1.02);
+      }
+
+      100% {
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Container */
+    .wrap {
+      position: relative;
+      z-index: 2;
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 36px;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .title {
+      font-weight: 900;
+      font-size: 42px;
+      letter-spacing: -1px;
+      margin: 0;
+      line-height: 1;
+      text-transform: uppercase;
+      color: #fff;
+      background: linear-gradient(90deg, #ffffff, var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 8px 30px rgba(255, 72, 0, 0.12);
+    }
+
+    .sub {
+      color: var(--muted);
+      margin-top: 8px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    /* Cards */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 18px;
+    }
+
+    @media (max-width:900px) {
+      .grid {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      transform-origin: center;
+      overflow: hidden;
+      position: relative;
+      min-height: 220px;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.15));
+      mix-blend-mode: multiply;
+      border-radius: 12px;
+    }
+
+    .card h3 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+      letter-spacing: 0.6px;
+      color: var(--accent-2);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .card p {
+      margin: 8px 0;
+      color: #ddd;
+      font-size: 14px;
+    }
+
+    /* Fire flare effect on card */
+    .flare {
+      position: absolute;
+      right: -120px;
+      top: -30px;
+      width: 360px;
+      height: 200px;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 120, 50, 0.08), rgba(255, 20, 0, 0.06) 25%, transparent 45%),
+        radial-gradient(circle at 80% 70%, rgba(255, 200, 120, 0.04), transparent 40%);
+      transform: rotate(-18deg);
+      filter: blur(24px);
+      animation: flareMove 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes flareMove {
+      0% {
+        transform: rotate(-18deg) translateY(0) scale(1);
+        opacity: 0.9;
+      }
+
+      50% {
+        transform: rotate(-16deg) translateY(-8px) scale(1.02);
+        opacity: 1;
+      }
+
+      100% {
+        transform: rotate(-18deg) translateY(0) scale(1);
+        opacity: 0.9;
+      }
+    }
+
+    /* Heavy animations for headings and lines */
+    .blaze {
+      display: inline-block;
+      font-weight: 900;
+      font-size: 28px;
+      letter-spacing: 1px;
+      color: #fff;
+      text-transform: uppercase;
+      transform-origin: center;
+      animation: pulse 1.2s infinite;
+      text-shadow: 0 6px 30px rgba(255, 72, 0, 0.18);
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: translateY(0) scale(1);
+        filter: brightness(1);
+      }
+
+      50% {
+        transform: translateY(-4px) scale(1.02);
+        filter: brightness(1.12);
+      }
+
+      100% {
+        transform: translateY(0) scale(1);
+        filter: brightness(1);
+      }
+    }
+
+    hr {
+      border: 0;
+      height: 2px;
+      margin: 18px 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 72, 0, 0.18), transparent);
+      transform-origin: center;
+      animation: hrSlide 5s linear infinite;
+    }
+
+    @keyframes hrSlide {
+      0% {
+        background-position: 0%;
+      }
+
+      100% {
+        background-position: 100%;
+      }
+    }
+
+    /* List look */
+    .list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: #e6e6e6;
+      font-size: 14px;
+    }
+
+    .list li {
+      margin: 8px 0;
+      padding-left: 10px;
+      position: relative;
+    }
+
+    .list li::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+      position: absolute;
+      left: 0;
+      top: 9px;
+      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      box-shadow: 0 4px 14px rgba(255, 72, 0, 0.18);
+    }
+
+    /* Expandable sections controlled by Vue */
+    .toggle {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .chev {
+      width: 10px;
+      height: 10px;
+      border-right: 2px solid var(--muted);
+      border-bottom: 2px solid var(--muted);
+      transform: rotate(45deg);
+      transition: transform 0.25s ease;
+      display: inline-block;
+    }
+
+    .chev.open {
+      transform: rotate(225deg);
+      border-color: var(--accent-2);
+    }
+
+    /* Flames at bottom - animated fake particles */
+    .embers {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 220px;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+      mix-blend-mode: screen;
+    }
+
+    .ember {
+      position: absolute;
+      bottom: -20px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--accent));
+      opacity: 0.9;
+      filter: blur(6px);
+      animation: emberRise linear infinite;
+    }
+
+    /* generate many ember positions via inline styles in HTML (Vue will render) */
+
+    /* Code-like box for manifesto */
+    .manifest {
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 10px;
+      padding: 16px;
+      font-family: "Source Code Pro", monospace;
+      font-size: 13px;
+      color: #dcdcdc;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      max-height: 420px;
+      overflow: auto;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    /* small footer */
+    footer {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      opacity: 0.9;
+    }
+
+    /* subtle hover and entrance */
+    .card {
+      transform: translateY(0);
+      transition: transform 0.45s cubic-bezier(.2, .9, .2, 1), box-shadow 0.35s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px) scale(1.01);
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.8);
+    }
+
+    .reveal {
+      animation: riseIn .6s cubic-bezier(.16, .84, .24, 1) both;
+    }
+
+    @keyframes riseIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sky-fire" aria-hidden="true"></div>
+
+  <div id="app" class="wrap">
+    <header>
+      <div style="flex:1">
+        <h1 class="title">Plan de guerre — 5 ans</h1>
+        <div class="sub">Version très hard, animations lourdes, discipline extrême. Pas d'excuse. Pas d'emoji.</div>
+      </div>
+      <div style="width:220px;text-align:right">
+        <div style="font-weight:700;color:var(--accent-2);font-size:13px">Mode</div>
+        <div style="font-weight:900;font-size:20px;color:#fff">RIGIDE · DAILY</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- YEAR 1 -->
+      <section class="card reveal" style="min-height:260px">
+        <div class="flare" aria-hidden="true"></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <h3>PHASE 1 — ANNÉE 1 : LA FORGE</h3>
+          <div class="toggle" @click="toggle('p1')">
+            <div :class="['blaze']">LA BASE</div>
+            <span :class="['chev', open.p1 ? 'open' : '']" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <hr />
+
+        <div v-show="open.p1" style="transition:all .3s ease;">
+          <p><strong>Objectif :</strong> construire la base — discipline, rigueur, constance, propreté du code.</p>
+
+          <p><strong>Routine</strong></p>
+          <ul class="list">
+            <li>Matin : deux heures minimum de travail profond sans distractions.</li>
+            <li>Après-midi : avancement client et apprentissage actif.</li>
+            <li>Soir : lecture technique, veille, ou récapitulatif.</li>
+          </ul>
+
+          <p style="margin-top:10px"><strong>Compétences techniques</strong></p>
+          <ul class="list">
+            <li>Maîtriser Vue.js : composition API, routing, performance, tests.</li>
+            <li>Maîtriser Git : branches, rebase, conflits, cherry-pick.</li>
+            <li>Bases solides en Node.js / Express.</li>
+            <li>Fondamentaux d'UX, accessibilité et design system.</li>
+          </ul>
+
+          <p style="margin-top:10px"><strong>Mental</strong></p>
+          <ul class="list">
+            <li>Chaque matin : objectif clair; tu ne fermes pas ton PC tant qu'il n'est pas atteint.</li>
+            <li>Zéro "je ferai demain". Tu termines. Toujours.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- YEAR 2 -->
+      <section class="card reveal">
+        <h3>PHASE 2 — ANNÉE 2 : LE RENFORCEMENT</h3>
+        <hr />
+        <div class="toggle" @click="toggle('p2')">
+          <div style="font-weight:700;color:var(--accent-2)">DEVENIR COMPLET</div>
+          <span :class="['chev', open.p2 ? 'open' : '']" aria-hidden="true"></span>
+        </div>
+
+        <div v-show="open.p2" style="margin-top:10px">
+          <p><strong>Habitudes</strong></p>
+          <ul class="list">
+            <li>Un side project par trimestre, de la conception au déploiement.</li>
+            <li>Publier tes progrès sur GitHub / LinkedIn.</li>
+            <li>Nouvelle compétence technique approfondie tous les 3 mois.</li>
+          </ul>
+
+          <p style="margin-top:10px"><strong>Compétences techniques</strong></p>
+          <ul class="list">
+            <li>TypeScript avancé.</li>
+            <li>API REST et GraphQL.</li>
+            <li>Déploiement (Vercel, Netlify, AWS).</li>
+            <li>Tests unitaires et end-to-end.</li>
+            <li>Optimisation des performances web.</li>
+          </ul>
+
+          <p style="margin-top:10px"><strong>Mental</strong></p>
+          <p style="color:var(--muted)">Tu ne cherches plus la motivation. Tu cherches une productivité froide, répétée.
+            Chaque jour, une brique.</p>
+        </div>
+      </section>
+
+      <!-- YEAR 3 -->
+      <section class="card reveal" style="min-height:260px">
+        <h3>PHASE 3 — ANNÉE 3 : L'EXPANSION</h3>
+        <hr />
+        <div class="toggle" @click="toggle('p3')">
+          <div style="font-weight:700;color:var(--accent-2)">DEVIENS ARCHITECTE</div>
+          <span :class="['chev', open.p3 ? 'open' : '']" aria-hidden="true"></span>
+        </div>
+
+        <div v-show="open.p3" style="margin-top:10px">
+          <p><strong>Technique</strong></p>
+          <ul class="list">
+            <li>Architecture front-end scalable (state management, monorepo).</li>
+            <li>Framework backend moderne (NestJS, Fastify).</li>
+            <li>Sécurité, authentification, middlewares.</li>
+            <li>WebSockets et temps réel. Introduction aux microservices/serverless.</li>
+          </ul>
+
+          <p style="margin-top:10px"><strong>Business</strong></p>
+          <ul class="list">
+            <li>Portfolio professionnel et cohérent.</li>
+            <li>Apprendre à vendre : positionnement, offre, pitch.</li>
+            <li>Augmenter tes tarifs de 30 à 50 % si ton delivery tient.</li>
+            <li>Choisir tes clients, ne plus subir.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- YEAR 4 -->
+      <section class="card reveal">
+        <h3>PHASE 4 — ANNÉE 4 : LA DOMINATION</h3>
+        <hr />
+        <div class="toggle" @click="toggle('p4')">
+          <div style="font-weight:700;color:var(--accent-2)">CHEF & CRÉATEUR</div>
+          <span :class="['chev', open.p4 ? 'open' : '']" aria-hidden="true"></span>
+        </div>
+
+        <div v-show="open.p4" style="margin-top:10px">
+          <p><strong>Business</strong></p>
+          <ul class="list">
+            <li>Former un réseau : designer, dev backend, UX pour projets plus gros.</li>
+            <li>Facturer au projet, moins à l'heure.</li>
+            <li>Produire contenu technique : articles, tutos, vidéos.</li>
+            <li>Participer à conférences ou meetups.</li>
+          </ul>
+
+          <p style="margin-top:10px"><strong>Compétences</strong></p>
+          <ul class="list">
+            <li>DevOps : CI/CD, Docker, monitoring.</li>
+            <li>Performance extrême : SSR, caching, lazy hydration.</li>
+            <li>Explorer l'IA appliquée au dev.</li>
+          </ul>
+
+          <p style="margin-top:10px"><strong>Routine</strong></p>
+          <p style="color:var(--muted)">Une heure par semaine pour planifier. Recul stratégique obligatoire.</p>
+        </div>
+      </section>
+
+      <!-- YEAR 5 -->
+      <section class="card reveal" style="grid-column: 1 / -1;">
+        <h3>PHASE 5 — ANNÉE 5 : LA MAÎTRISE</h3>
+        <hr />
+        <div class="toggle" @click="toggle('p5')">
+          <div style="font-weight:700;color:var(--accent-2)">RÉFÉRENT INARRÊTABLE</div>
+          <span :class="['chev', open.p5 ? 'open' : '']" aria-hidden="true"></span>
+        </div>
+
+        <div v-show="open.p5" style="margin-top:10px">
+          <p><strong>Impact</strong></p>
+          <ul class="list">
+            <li>Ton nom est connu dans ta sphère.</li>
+            <li>Ton GitHub ou ton blog est une référence.</li>
+            <li>Tu coaches d'autres développeurs.</li>
+            <li>Tu factures plusieurs fois plus et tu choisis tes projets.</li>
+          </ul>
+
+          <p style="margin-top:10px"><strong>Mental</strong></p>
+          <p style="color:var(--muted)">Tu n'as plus besoin de motivation. Ta discipline est ton identité. Tout est
+            construit par ta propre sueur.</p>
+
+          <hr />
+
+          <div class="manifest">
+            Dans cinq ans, tu seras soit le produit de ta discipline, soit la victime de tes excuses.
+
+            Phases résumées :
+            1) Année 1 — forge : discipline, 2h deep work matin, maîtrise Vue.js, Git, Node.
+            2) Année 2 — renforcement : side projects, TypeScript, tests, déploiement.
+            3) Année 3 — expansion : architecture, backend moderne, WebSockets, microservices, tarifs en hausse.
+            4) Année 4 — domination : réseau, delivery par projet, contenu, DevOps, performance.
+            5) Année 5 — maîtrise : renommée, coaching, choix des projets, revenus multiples.
+
+            RITUEL QUOTIDIEN :
+            - Morning: 2h sans distractions (feature / tests / commit).
+            - Daily: un livrable concret (commit, PR, doc).
+            - Weekly: 1h planification stratégique.
+            - Monthly: revue du code produit 30 jours plus tôt — si tu ne te dis pas "qui a écrit ça ?", tu n'as pas
+            progressé.
+            - Quarterly: nouveau skill profond (3 mois), side project livré.
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <footer>
+      <div style="margin-top:16px">Copie ce fichier et colle-le dans <code>plan-guerre-5ans.html</code>. Ouvre dans ton
+        navigateur. Rappel : applique-le. Sans pitié.</div>
+    </footer>
+  </div>
+
+  <!-- Embers generation and Vue app -->
+  <script>
+    const { createApp, reactive, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const open = reactive({ p1: true, p2: false, p3: false, p4: false, p5: false });
+
+        function toggle(k) {
+          open[k] = !open[k];
+        }
+
+        // Create ember particles dynamically
+        onMounted(() => {
+          const container = document.createElement('div');
+          container.className = 'embers';
+          const count = 28;
+          for (let i = 0; i < count; i++) {
+            const e = document.createElement('div');
+            e.className = 'ember';
+            // randomize position, size, duration
+            const left = Math.random() * 100;
+            const size = 4 + Math.random() * 12;
+            const delay = Math.random() * -12;
+            const dur = 6 + Math.random() * 8;
+            e.style.left = left + '%';
+            e.style.width = e.style.height = size + 'px';
+            e.style.bottom = (-20 - Math.random() * 40) + 'px';
+            e.style.opacity = 0.6 + Math.random() * 0.6;
+            e.style.animationDuration = dur + 's';
+            e.style.animationDelay = delay + 's';
+            // random path via keyframe override using CSS variable
+            const rise = Math.random() * 140 + 160;
+            e.style.transform = 'translateY(0)';
+            e.style.animationName = 'emberRise';
+            e.style.borderRadius = (size / 2) + 'px';
+            e.style.background = 'radial-gradient(circle at 30% 30%, #fff, rgba(255,72,0,0.98))';
+            e.style.filter = 'blur(' + (2 + Math.random() * 5) + 'px)';
+            // inline style for a CSS animation using transform (we use JS to animate later)
+            container.appendChild(e);
+
+            // create inline animation via setInterval for subtle horizontal wiggle (keeps CPU moderate)
+            (function (el, idx) {
+              let t = 0;
+              const amp = 20 + Math.random() * 80;
+              const speed = 0.02 + Math.random() * 0.03;
+              function frame() {
+                t += speed;
+                const x = Math.sin(t + idx) * amp;
+                el.style.transform = 'translateX(' + x + 'px) translateY(-' + (Math.min(200 + Math.random() * 300, rise) * (t / (dur))) + 'px) scale(' + (0.6 + Math.random() * 0.7) + ')';
+                requestAnimationFrame(frame);
+              }
+              requestAnimationFrame(frame);
+            })(e, i);
+          }
+          document.body.appendChild(container);
+        });
+
+        return { open, toggle };
+      }
+    }).mount('#app');
+  </script>
+
+  <style>
+    /* emberRise fallback animation (kept simple in CSS to reduce jank) */
+    @keyframes emberRise {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.9;
+      }
+
+      40% {
+        opacity: 0.85;
+      }
+
+      100% {
+        transform: translateY(-420px) scale(0.65);
+        opacity: 0;
+      }
+    }
+  </style>
+</body>
+
+</html>

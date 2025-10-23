@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Prompt Engineering - Detail</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media'
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link href="../styles.css" rel="stylesheet">
+  <script src="shared.js"></script>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900">
+
+  <div id="app" class="min-h-screen flex flex-col">
+
+    <div id="header-container"></div>
+
+    <main class="flex-1 p-4">
+      <!-- Detail View -->
+      <section class="max-w-5xl mx-auto">
+        <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg p-6" v-if="currentPrompt">
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <h2 class="text-3xl font-bold dark:text-white">{{ currentPrompt.title }}</h2>
+            </div>
+            <div class="flex gap-2">
+              <button @click="editPrompt" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                <span class="material-symbols-outlined dark:text-white">edit</span>
+              </button>
+              <button @click="goBack" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                <span class="material-symbols-outlined dark:text-white">arrow_back</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Parameters -->
+          <div class="mb-3">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Task:</span>
+            <div class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.task)"></div>
+          </div>
+          <div class="mb-3">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Persona:</span>
+            <div class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.persona)"></div>
+          </div>
+          <div class="mb-3">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">File Type:</span>
+            <div class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.file_type)"></div>
+          </div>
+          <div v-if="currentPrompt.context" class="mb-3">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Context:</span>
+            <div class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.context)"></div>
+          </div>
+          <div v-if="currentPrompt.format" class="mb-3">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Format:</span>
+            <div class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.format)"></div>
+          </div>
+          <div v-if="currentPrompt.more_context" class="mb-3">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">More Context:</span>
+            <div class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.more_context)"></div>
+          </div>
+
+          <!-- Dynamic Parameters -->
+          <div v-if="currentPrompt.dynamic_params?.length" class="mb-6">
+            <h3 class="text-lg font-semibold dark:text-white mb-3">Dynamic Parameters</h3>
+            <div v-for="(param, index) in currentPrompt.dynamic_params" :key="param.key" class="mb-3">
+              <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{{ param.key }}:</label>
+              <input v-model="dynamicParamValues[param.key]" type="text"
+                class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm">
+            </div>
+            <div class="mt-4 flex gap-3">
+              <button @click="generatePrompt" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                Generate Prompt
+              </button>
+            </div>
+          </div>
+
+          <!-- Generated Prompt Output -->
+          <div v-if="generatedPrompt" class="mb-6">
+            <h3 class="text-lg font-semibold dark:text-white mb-3">Generated Prompt</h3>
+            <div class="border dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
+              <pre class="whitespace-pre-wrap text-sm dark:text-gray-200">{{ generatedPrompt }}</pre>
+              <div class="mt-3 flex gap-2">
+                <button @click="copyToClipboard"
+                  class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                  Copy to Clipboard
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contents -->
+          <div v-if="currentPrompt.contents?.length">
+            <h3 class="text-lg font-semibold dark:text-white mb-3">Contents</h3>
+            <div class="space-y-4">
+              <details v-for="(content, index) in currentPrompt.contents" :key="index">
+                <summary class="font-medium dark:text-white mb-2 border-b pb-1 cursor-pointer">
+                  {{ content.title || `Content ${index + 1}` }}
+                </summary>
+                <div
+                  class="text-sm overflow-x-auto markdown-content dark:text-gray-200"
+                  v-html="renderMarkdown(content.text)"></div>
+              </details>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="text-center text-gray-500 dark:text-gray-400 mt-10">
+          <p>Prompt not found or loading...</p>
+          <button @click="goBack" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+            Go Back to List
+          </button>
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <script>
+    Vue.createApp({
+      data() {
+        return {
+          currentPrompt: null,
+          dynamicParamValues: {},
+          generatedPrompt: ''
+        }
+      },
+      async mounted() {
+        // Set up header
+        document.getElementById('header-container').innerHTML = createHeader('detail');
+        
+        // Load prompt from URL parameter
+        const promptId = URLParams.get('id');
+        if (promptId) {
+          await this.loadPrompt(promptId);
+        } else {
+          PrompterNav.goToList();
+        }
+      },
+      methods: {
+        async loadPrompt(id) {
+          this.currentPrompt = await PrompterAPI.fetchById(id);
+          if (this.currentPrompt) {
+            this.initializeDynamicParams();
+          }
+        },
+
+        initializeDynamicParams() {
+          this.dynamicParamValues = {};
+          this.generatedPrompt = '';
+          if (this.currentPrompt?.dynamic_params) {
+            this.currentPrompt.dynamic_params.forEach(param => {
+              this.dynamicParamValues[param.key] = param.value;
+            });
+          }
+        },
+
+        generatePrompt() {
+          if (!this.currentPrompt) return;
+          this.generatedPrompt = PrompterUtils.generatePrompt(this.currentPrompt, this.dynamicParamValues);
+        },
+
+        async copyToClipboard() {
+          await PrompterUtils.copyToClipboard(this.generatedPrompt);
+        },
+
+        editPrompt() {
+          PrompterNav.goToEdit(this.currentPrompt.id);
+        },
+
+        goBack() {
+          PrompterNav.goToList();
+        },
+
+        renderMarkdown(text) {
+          return PrompterUtils.renderMarkdown(text);
+        }
+      }
+    }).mount('#app');
+  </script>
+  <script src="../auto-resize.js"></script>
+</body>
+
+</html>

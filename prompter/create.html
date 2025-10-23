@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Prompt Engineering - Create/Edit</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media'
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <link href="../styles.css" rel="stylesheet">
+  <script src="shared.js"></script>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900">
+
+  <div id="app" class="min-h-screen flex flex-col">
+
+    <div id="header-container"></div>
+
+    <main class="flex-1 p-4">
+      <!-- Create/Edit View -->
+      <section class="max-w-4xl mx-auto">
+        <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg p-6">
+          <h2 class="text-2xl font-bold mb-6 dark:text-white">
+            {{ editing ? 'Edit Prompt' : 'Create New Prompt' }}
+          </h2>
+
+          <form @submit.prevent="savePrompt" class="space-y-6">
+            <!-- Default Parameters -->
+            <div>
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Title</label>
+                <input v-model="form.title" type="text" required
+                  class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white">
+              </div>
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Persona</label>
+                <input v-model="form.persona" type="text" required
+                  class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white">
+              </div>
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">File Type</label>
+                <select v-model="form.file_type" required
+                  class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white">
+                  <option value="">Select file type</option>
+                  <option value="txt">Text (.txt)</option>
+                  <option value="md">Markdown (.md)</option>
+                  <option value="json">JSON (.json)</option>
+                  <option value="html">HTML (.html)</option>
+                  <option value="py">Python (.py)</option>
+                  <option value="js">JavaScript (.js)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Task</label>
+              <textarea v-model="form.task"
+                class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white"
+                placeholder="Background context for the prompt"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Context</label>
+              <textarea v-model="form.context"
+                class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white"
+                placeholder="Background context for the prompt"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Format</label>
+              <textarea v-model="form.format"
+                class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white"
+                placeholder="Expected output format"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                More Context
+                <button type="button" @click="form.more_context = ''"
+                  class="text-xs text-red-600 dark:text-red-400 ml-2">
+                  (clear)
+                </button>
+              </label>
+              <textarea v-model="form.more_context" rows="3"
+                class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white"
+                placeholder="Additional context (optional)"></textarea>
+            </div>
+
+            <!-- Dynamic Parameters -->
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dynamic Parameters</label>
+                <button type="button" @click="addParameter"
+                  class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                  Add Parameter
+                </button>
+              </div>
+              <div v-for="(param, index) in form.dynamic_params" :key="index" class="flex gap-2 mb-2">
+                <input v-model="param.key" placeholder="Parameter name"
+                  class="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm">
+                <input v-model="param.value" placeholder="Default value"
+                  class="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm">
+                <button type="button" @click="removeParameter(index)"
+                  class="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
+                  <span class="material-symbols-outlined text-sm">delete</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Contents -->
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contents</label>
+                <button type="button" @click="addContent"
+                  class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                  Add Content
+                </button>
+              </div>
+              <div v-for="(content, index) in form.contents" :key="index"
+                class="border dark:border-gray-600 rounded p-3 mb-3">
+                <div class="flex justify-between items-center mb-2">
+                  <input v-model="content.title" placeholder="Content title"
+                    class="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm mr-2">
+                  <button type="button" @click="removeContent(index)"
+                    class="p-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
+                    <span class="material-symbols-outlined text-sm">delete</span>
+                  </button>
+                </div>
+                <textarea v-model="content.text" placeholder="Paste your content here..."
+                  class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm"></textarea>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-end gap-3 pt-4 border-t dark:border-gray-600">
+              <button type="button" @click="cancelEdit"
+                class="px-4 py-2 border dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                Cancel
+              </button>
+              <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                {{ editing ? 'Update' : 'Create' }} Prompt
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <script>
+    Vue.createApp({
+      data() {
+        return {
+          editing: false,
+          form: {
+            id: null,
+            title: '',
+            task: '',
+            persona: '',
+            context: '',
+            format: '',
+            file_type: '',
+            more_context: '',
+            dynamic_params: [],
+            contents: []
+          }
+        }
+      },
+      async mounted() {
+        // Set up header
+        document.getElementById('header-container').innerHTML = createHeader('create');
+        
+        // Check if we're editing an existing prompt
+        const editId = URLParams.get('edit');
+        if (editId) {
+          await this.loadPromptForEdit(editId);
+        }
+      },
+      methods: {
+        async loadPromptForEdit(id) {
+          const prompt = await PrompterAPI.fetchById(id);
+          if (prompt) {
+            this.editing = true;
+            this.form = {
+              id: prompt.id,
+              title: prompt.title || '',
+              task: prompt.task || '',
+              persona: prompt.persona || '',
+              context: prompt.context || '',
+              format: prompt.format || '',
+              file_type: prompt.file_type || '',
+              more_context: prompt.more_context || '',
+              dynamic_params: prompt.dynamic_params || [],
+              contents: prompt.contents || []
+            };
+          }
+        },
+
+        async savePrompt() {
+          const promptData = PrompterUtils.formatPromptData(this.form);
+
+          if (this.editing) {
+            await PrompterAPI.update(this.form.id, promptData);
+          } else {
+            await PrompterAPI.create(promptData);
+          }
+
+          PrompterNav.goToList();
+        },
+
+        cancelEdit() {
+          PrompterNav.goToList();
+        },
+
+        addParameter() {
+          this.form.dynamic_params.push({ key: '', value: '' });
+        },
+
+        removeParameter(index) {
+          this.form.dynamic_params.splice(index, 1);
+        },
+
+        addContent() {
+          this.form.contents.push({ title: '', text: '' });
+        },
+
+        removeContent(index) {
+          this.form.contents.splice(index, 1);
+        }
+      }
+    }).mount('#app');
+  </script>
+  <script src="../auto-resize.js"></script>
+</body>
+
+</html>

@@ -106,6 +106,13 @@
             <textarea v-model="form.content" rows="6" class="w-full border dark:border-gray-600 rounded px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-white"
               placeholder="Write content here"></textarea>
           </div>
+          <div>
+            <label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Text Direction</label>
+            <select v-model="form.direction" class="w-full border dark:border-gray-600 rounded px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-white">
+              <option value="rtl">Right-to-Left (RTL)</option>
+              <option value="ltr">Left-to-Right (LTR)</option>
+            </select>
+          </div>
           <div class="flex justify-end gap-2">
             <button type="button" @click="cancel" class="px-4 py-2 rounded border dark:border-gray-600 dark:text-white dark:hover:bg-gray-700">Cancel</button>
             <button type="submit" class="px-4 py-2 bg-indigo-600 dark:bg-indigo-700 text-white rounded hover:opacity-90">Save</button>
@@ -130,11 +137,11 @@
               <p class="text-sm text-gray-500 dark:text-gray-400">Lesson ID: {{ currentLesson.id }}</p>
             </div>
             <div class="flex gap-2">
+              <button @click="toggleDirection" class="p-2 rounded hover:bg-slate-100 dark:hover:bg-gray-700" title="Toggle Direction">
+                <span class="material-symbols-outlined dark:text-white">{{ currentLesson.direction === 'rtl' ? 'format_textdirection_r_to_l' : 'format_textdirection_l_to_r' }}</span>
+              </button>
               <button @click="startEdit(currentLesson)" class="p-2 rounded hover:bg-slate-100 dark:hover:bg-gray-700">
                 <span class="material-symbols-outlined dark:text-white">edit</span>
-              </button>
-              <button @click="view='fullscreen'" class="p-2 rounded hover:bg-slate-100 dark:hover:bg-gray-700" title="Fullscreen">
-                <span class="material-symbols-outlined dark:text-white">fullscreen</span>
               </button>
               <button @click="view='list'" class="p-2 rounded hover:bg-slate-100 dark:hover:bg-gray-700">
                 <span class="material-symbols-outlined dark:text-white">arrow_back</span>
@@ -146,7 +153,9 @@
               <canvas v-if="(index + 1) % 2 === 0" :ref="'canvas-' + index" class="border dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 w-full"
                 style="height: 60px;">
               </canvas>
-              <div v-else class="text-gray-700 dark:text-gray-300 leading-relaxed text-3xl text-right" dir="rtl">{{ line }}</div>
+              <div v-else class="text-gray-700 dark:text-gray-300 leading-relaxed text-3xl" 
+                   :class="currentLesson.direction === 'rtl' ? 'text-right' : 'text-left'" 
+                   :dir="currentLesson.direction">{{ line }}</div>
             </div>
           </div>
         </div>
@@ -164,7 +173,9 @@
               <canvas v-if="(index + 1) % 2 === 0" :ref="'fullscreen-canvas-' + index" 
                 class="border dark:border-gray-700 rounded bg-gray-50 dark:bg-gray-800 w-full" style="height: 80px;">
               </canvas>
-              <div v-else class="text-gray-800 dark:text-gray-200 leading-relaxed text-4xl text-right p-4" dir="rtl">{{ line }}</div>
+              <div v-else class="text-gray-800 dark:text-gray-200 leading-relaxed text-4xl p-4" 
+                   :class="currentLesson.direction === 'rtl' ? 'text-right' : 'text-left'" 
+                   :dir="currentLesson.direction">{{ line }}</div>
             </div>
           </div>
         </div>
@@ -213,7 +224,7 @@
         return {
           view: 'list',
           lessons: [],
-          form: { id: null, title: '', content: '' },
+          form: { id: null, title: '', content: '', direction: 'rtl' },
           editing: false,
           currentLesson: null,
           preLearningText: [
@@ -242,7 +253,8 @@
           if (!this.form.title.trim() || !this.form.content.trim()) return;
           const { data } = await supabaseClient.from('lessons').insert([{
             title: this.form.title.trim(),
-            content: this.form.content.trim()
+            content: this.form.content.trim(),
+            direction: this.form.direction
           }]).select().single();
           if (data) this.lessons.push(data);
           this.cancel(); this.view = 'list';
@@ -311,7 +323,8 @@
         async updateLesson() {
           const { data } = await supabaseClient.from('lessons').update({
             title: this.form.title.trim(),
-            content: this.form.content.trim()
+            content: this.form.content.trim(),
+            direction: this.form.direction
           }).eq('id', this.form.id).select().single();
           if (data) {
             const i = this.lessons.findIndex(x => x.id === data.id);
@@ -323,9 +336,22 @@
           await supabaseClient.from('lessons').delete().eq('id', id);
           this.lessons = this.lessons.filter(x => x.id !== id);
         },
+        async toggleDirection() {
+          if (!this.currentLesson) return;
+          const newDirection = this.currentLesson.direction === 'rtl' ? 'ltr' : 'rtl';
+          const { data } = await supabaseClient.from('lessons').update({
+            direction: newDirection
+          }).eq('id', this.currentLesson.id).select().single();
+          
+          if (data) {
+            this.currentLesson.direction = newDirection;
+            const i = this.lessons.findIndex(x => x.id === data.id);
+            if (i >= 0) this.lessons.splice(i, 1, data);
+          }
+        },
         cancel() { 
           this.editing = false; 
-          this.form = { id: null, title: '', content: '' }; 
+          this.form = { id: null, title: '', content: '', direction: 'rtl' }; 
           this.view = 'list';
           this.saveViewState();
         },

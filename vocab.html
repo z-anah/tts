@@ -53,9 +53,6 @@
         <button @click="view='prelearn'" :class="navClass('prelearn')" title="Pre-Learning">
           <span class="material-symbols-outlined">priority_high</span>
         </button>
-        <button @click="view='about'" :class="navClass('about')" title="About">
-          <span class="material-symbols-outlined">info</span>
-        </button>
       </nav>
     </header>
 
@@ -64,9 +61,14 @@
       <section v-if="view==='list'" class="max-w-5xl mx-auto">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-semibold dark:text-white">All Lessons</h2>
-          <button @click="fetchLessons" class="p-2 rounded hover:bg-indigo-100 dark:hover:bg-gray-700">
-            <span class="material-symbols-outlined dark:text-white">refresh</span>
-          </button>
+          <div class="flex gap-2">
+            <button @click="fetchLessons" class="p-2 rounded hover:bg-indigo-100 dark:hover:bg-gray-700">
+              <span class="material-symbols-outlined dark:text-white">refresh</span>
+            </button>
+            <button @click="navigateToIndex" class="p-2 rounded hover:bg-indigo-100 dark:hover:bg-gray-700">
+              <span class="material-symbols-outlined dark:text-white">arrow_back</span>
+            </button>
+          </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="l in lessons" :key="l.id" 
@@ -118,15 +120,6 @@
             <button type="submit" class="px-4 py-2 bg-indigo-600 dark:bg-indigo-700 text-white rounded hover:opacity-90">Save</button>
           </div>
         </form>
-      </section>
-
-      <section v-if="view==='about'" class="max-w-2xl mx-auto text-center mt-10">
-        <span class="material-symbols-outlined text-6xl text-indigo-400 mb-4">emoji_objects</span>
-        <h2 class="text-2xl font-bold mb-2 dark:text-white">About This App</h2>
-        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
-          A minimal learning CRUD app built with Vue 3 (CDN), Tailwind CSS, and Supabase.<br>
-          Manage Arabic and English lesson pairs easily — create, view, update, delete.
-        </p>
       </section>
 
       <section v-if="view==='detail'" class="max-w-3xl mx-auto">
@@ -391,6 +384,9 @@
             console.error('Error restoring view state:', error);
           }
         },
+        navigateToIndex() {
+          window.location.href = 'index.html';
+        }
       },
       computed: {
         contentLines() {

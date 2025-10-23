@@ -192,7 +192,6 @@ const createHeader = (currentView = '') => {
     <header class="bg-white dark:bg-gray-800 shadow p-4 flex justify-between items-center">
       <div class="flex items-center gap-2">
         <span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-3xl">lightbulb</span>
-        <h1 class="text-xl font-semibold dark:text-white">Prompt Engineering</h1>
       </div>
       <nav class="flex gap-3">
         <button onclick="PrompterNav.goToList()" class="${getNavClass('list', currentView)}" title="List Prompts">

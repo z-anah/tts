@@ -125,18 +125,24 @@
                   Add Content
                 </button>
               </div>
-              <div v-for="(content, index) in form.contents" :key="index"
-                class="border dark:border-gray-600 rounded p-3 mb-3">
-                <div class="flex justify-between items-center mb-2">
-                  <input v-model="content.title" placeholder="Content title"
-                    class="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm mr-2">
-                  <button type="button" @click="removeContent(index)"
-                    class="p-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
-                    <span class="material-symbols-outlined text-sm">delete</span>
-                  </button>
-                </div>
-                <textarea v-model="content.text" placeholder="Paste your content here..."
-                  class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm"></textarea>
+              <div v-for="(content, index) in form.contents" :key="index" class="mb-3">
+                <details>
+                  <summary class="px-3 py-2 cursor-pointer">
+                    {{ content.title || `Content ${index + 1}` }}
+                  </summary>
+                  <div>
+                    <div class="flex justify-between items-center mb-2">
+                      <input v-model="content.title" placeholder="Content title"
+                        class="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm mr-2"><button
+                        type="button" @click="removeContent(index)"
+                        class="mt-2 p-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
+                        <span class="material-symbols-outlined text-sm">delete</span>
+                      </button>
+                    </div>
+                    <textarea v-model="content.text" placeholder="Paste your content here..."
+                      class="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 dark:text-white text-sm"></textarea>
+                  </div>
+                </details>
               </div>
             </div>
 
@@ -168,7 +174,7 @@
             task: '',
             persona: '',
             context: '',
-            format: '',
+            format: 'Bullet point, no emoji, no icon, no intro, no outro, one shot',
             file_type: '',
             more_context: '',
             dynamic_params: [],
@@ -211,11 +217,12 @@
 
           if (this.editing) {
             await PrompterAPI.update(this.form.id, promptData);
+            alert('Prompt updated successfully!');
+            PrompterNav.goToDetail(this.form.id);
           } else {
-            await PrompterAPI.create(promptData);
+            const data = await PrompterAPI.create(promptData);
+            PrompterNav.goToDetail(data.id);
           }
-
-          PrompterNav.goToList();
         },
 
         cancelEdit() {

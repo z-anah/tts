@@ -1,5 +1,5 @@
 <!doctype html>
-<html :lang="currentLanguage">
+<html>
 
 <head>
   <meta charset="utf-8">
@@ -35,18 +35,10 @@
 
   <div id="app" class="min-h-screen flex flex-col">
 
-    <!-- Language Selector Header -->
+    <!-- Header -->
     <header class="border-b dark:border-gray-700 p-4">
       <div class="max-w-2xl mx-auto flex justify-between items-center">
-        <div class="text-sm text-gray-600 dark:text-gray-400">{{ getGreeting() }}</div>
-        <div class="relative">
-          <select v-model="currentLanguage" @change="changeLanguage" 
-                  class="bg-white dark:bg-gray-800 border dark:border-gray-600 rounded-md px-3 py-1 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <option v-for="lang in languages" :key="lang.code" :value="lang.code">
-              {{ lang.flag }} {{ lang.name }}
-            </option>
-          </select>
-        </div>
+        <div class="text-sm text-gray-600 dark:text-gray-400">Welcome</div>
       </div>
     </header>
 
@@ -83,14 +75,6 @@
     Vue.createApp({
       data() {
         return {
-          currentLanguage: 'ar', // Arabic as default
-          languages: [
-            { code: 'ar', name: 'العربية', flag: '🇸🇦' },
-            { code: 'en', name: 'English', flag: '🇺🇸' },
-            { code: 'fr', name: 'Français', flag: '🇫🇷' },
-            { code: 'ko', name: '한국어', flag: '🇰🇷' },
-            { code: 'ja', name: '日本語', flag: '🇯🇵' }
-          ],
           modules: [
             {
               id: 'vocab',
@@ -126,20 +110,6 @@
       methods: {
         openModule(url) {
           window.location.href = url;
-        },
-        changeLanguage() {
-          localStorage.setItem('tts-language', this.currentLanguage);
-          // Language changed - you can add more logic here if needed
-        },
-        getGreeting() {
-          const greetings = {
-            'ar': 'مرحباً',
-            'en': 'Hello',
-            'fr': 'Bonjour',
-            'ko': '안녕하세요',
-            'ja': 'こんにちは'
-          };
-          return greetings[this.currentLanguage] || greetings['ar'];
         }
       }
     }).mount('#app');

@@ -55,8 +55,11 @@
             <div class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.persona)"></div>
           </div>
           <div class="mb-3">
-            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">File Type:</span>
-            <div class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.file_type)"></div>
+            <label class="inline-flex items-center cursor-pointer">
+              <input type="checkbox" v-model="includeFileType" class="form-checkbox mr-2" checked>
+              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">File Type:</span>
+            </label>
+            <div v-if="includeFileType" class="dark:text-white markdown-content" v-html="renderMarkdown(currentPrompt.file_type)"></div>
           </div>
           <div v-if="currentPrompt.context" class="mb-3">
             <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Context:</span>
@@ -136,7 +139,8 @@
         return {
           currentPrompt: null,
           dynamicParamValues: {},
-          generatedPrompt: ''
+          generatedPrompt: '',
+          includeFileType: true
         }
       },
       async mounted() {
@@ -171,7 +175,12 @@
 
         generatePrompt() {
           if (!this.currentPrompt) return;
-          this.generatedPrompt = PrompterUtils.generatePrompt(this.currentPrompt, this.dynamicParamValues);
+          // Clone prompt to avoid mutating original
+          const promptCopy = JSON.parse(JSON.stringify(this.currentPrompt));
+          if (!this.includeFileType) {
+            delete promptCopy.file_type;
+          }
+          this.generatedPrompt = PrompterUtils.generatePrompt(promptCopy, this.dynamicParamValues);
         },
 
         async copyToClipboard() {
